@@ -8,6 +8,7 @@ global using Microsoft.Extensions.DependencyInjection;
 global using SomethingNeedDoing.Attributes;
 global using SomethingNeedDoing.Core;
 global using SomethingNeedDoing.Core.Exceptions;
+global using SomethingNeedDoing.Localization;
 global using SomethingNeedDoing.Utils;
 global using System;
 global using System.Collections.Generic;

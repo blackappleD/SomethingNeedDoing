@@ -75,6 +75,11 @@ public class Config : IHostedService
     public bool PropagateControlsToChildren { get; set; } = true;
     public bool AutoOpenStatusWindow { get; set; } = false;
 
+    /// <summary>
+    /// 界面语言代码（"en"、"zh"），为空时跟随 Dalamud 界面语言。
+    /// </summary>
+    public string Language { get; set; } = string.Empty;
+
     public bool HasCompletedTutorial { get; set; } = false;
     public bool AcknowledgedLegacyWarning { get; set; } = false;
     #endregion

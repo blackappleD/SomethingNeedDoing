@@ -29,18 +29,17 @@ public class LoopCommand(string text, int loopCount) : MacroCommandBase(text)
         if (loopsRemaining == MaxLoops)
         {
             if (EchoModifier?.ShouldEcho == true || C.LoopEcho)
-                Svc.Chat.PrintMessage("Looping");
+                Svc.Chat.PrintMessage(Loc.Get("Chat.Looping"));
         }
         else
         {
             if (EchoModifier?.ShouldEcho == true || C.LoopEcho)
             {
                 if (loopsRemaining == 0)
-                    Svc.Chat.PrintMessage("No loops remaining");
+                    Svc.Chat.PrintMessage(Loc.Get("Chat.NoLoopsRemaining"));
                 else
                 {
-                    var noun = loopsRemaining == 1 ? "loop" : "loops";
-                    Svc.Chat.PrintMessage($"{loopsRemaining} {noun} remaining");
+                    Svc.Chat.PrintMessage(Loc.Format(loopsRemaining == 1 ? "Chat.LoopRemaining" : "Chat.LoopsRemaining", loopsRemaining));
                 }
             }
 

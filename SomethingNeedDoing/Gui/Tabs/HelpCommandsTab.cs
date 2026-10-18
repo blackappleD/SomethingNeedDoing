@@ -40,13 +40,13 @@ public partial class HelpCommandsTab
     public void DrawTab()
     {
         using var child = ImRaii.Child(nameof(HelpCommandsTab));
-        ImGuiUtils.Section("Commands", () =>
+        ImGuiUtils.Section(Loc.Get("Help.Commands"), () =>
         {
             foreach (var (name, info) in Commands.OrderBy(x => x.Key))
             {
                 ImGuiEx.Text(ImGuiColors.DalamudOrange, $"/{name}");
                 ImGui.SameLine();
-                ImGuiEx.Text(ImGuiColors.DalamudGrey, $"→ {info.Description}");
+                ImGuiEx.Text(ImGuiColors.DalamudGrey, $"→ {Loc.GetOr($"Doc.Command.{name}", info.Description)}");
 
                 if (info.Examples.Length > 0)
                     ImGuiUtils.CollapsibleSection(name, () => info.Examples.Each(x => ImGuiEx.Text(ImGuiColors.DalamudGrey, x)));
@@ -54,13 +54,13 @@ public partial class HelpCommandsTab
             }
         });
 
-        ImGuiUtils.Section("Modifiers", () =>
+        ImGuiUtils.Section(Loc.Get("Help.Modifiers"), () =>
         {
             foreach (var (name, info) in Modifiers.OrderBy(x => x.Key))
             {
                 ImGuiEx.Text(ImGuiColors.DalamudOrange, $"<{name}>");
                 ImGui.SameLine();
-                ImGuiEx.Text(ImGuiColors.DalamudGrey, $"→ {info.Description}");
+                ImGuiEx.Text(ImGuiColors.DalamudGrey, $"→ {Loc.GetOr($"Doc.Modifier.{name}", info.Description)}");
 
                 if (info.Examples.Length > 0)
                     ImGuiUtils.CollapsibleSection(name, () => info.Examples.Each(x => ImGuiEx.Text(ImGuiColors.DalamudGrey, x)));

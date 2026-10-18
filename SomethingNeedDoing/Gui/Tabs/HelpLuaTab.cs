@@ -17,7 +17,7 @@ public partial class HelpLuaTab
     public void DrawTab()
     {
         using var child = ImRaii.Child(nameof(HelpLuaTab));
-        ImGuiUtils.Section("Lua Scripting", () => ImGui.TextWrapped($"Below are all of the functions and properties provided by the framework. Click any to copy the full call path to clipboard. Hover any function to learn more about it."));
+        ImGuiUtils.Section(Loc.Get("Help.Lua.Title"), () => ImGui.TextWrapped(Loc.Get("Help.Lua.Description")));
 
         foreach (var module in _luaDocs.GetModules().OrderBy(m => m.Key))
         {
@@ -121,7 +121,7 @@ public partial class HelpLuaTab
         {
             if (!string.IsNullOrEmpty(ex))
             {
-                ImGui.TextColored(ImGuiColors.DalamudGrey, "Example:");
+                ImGui.TextColored(ImGuiColors.DalamudGrey, Loc.Get("Help.Lua.Example"));
                 ImGuiEx.TextWrapped(ImGuiColors.DalamudYellow, ex);
             }
         }

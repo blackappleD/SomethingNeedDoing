@@ -64,7 +64,7 @@ public partial class MacroEditor
     private void DrawEmptyState()
     {
         var center = ImGui.GetContentRegionAvail() / 2;
-        var text = "Select a macro or create a new one";
+        var text = Loc.Get("Editor.EmptyState");
         var textSize = ImGui.CalcTextSize(text);
         ImGui.SetCursorPos(ImGui.GetCursorPos() + center - textSize / 2);
         ImGui.TextColored(ImGuiColors.DalamudGrey, text);
@@ -86,17 +86,17 @@ public partial class MacroEditor
         var group = new ImGuiEx.EzButtonGroup();
         var startBtn = GetStartOrResumeAction(macro);
         group.AddIconOnly(FontAwesomeIcon.PlayCircle, () => startBtn.action(), startBtn.tooltip);
-        group.AddIconOnly(FontAwesomeIcon.PauseCircle, () => _scheduler.PauseMacro(macro.Id), "Pause", new() { Condition = () => _scheduler.GetMacroState(macro.Id) is MacroState.Running });
-        group.AddIconOnly(FontAwesomeIcon.StopCircle, () => _scheduler.StopMacro(macro.Id), "Stop");
-        group.AddIconOnly(FontAwesomeIcon.Clipboard, () => Copy(macro.Content), "Copy");
+        group.AddIconOnly(FontAwesomeIcon.PauseCircle, () => _scheduler.PauseMacro(macro.Id), Loc.Get("Common.Pause"), new() { Condition = () => _scheduler.GetMacroState(macro.Id) is MacroState.Running });
+        group.AddIconOnly(FontAwesomeIcon.StopCircle, () => _scheduler.StopMacro(macro.Id), Loc.Get("Common.Stop"));
+        group.AddIconOnly(FontAwesomeIcon.Clipboard, () => Copy(macro.Content), Loc.Get("Common.Copy"));
         group.Draw();
     }
 
     private (Action action, string tooltip) GetStartOrResumeAction(IMacro macro)
         => _scheduler.GetMacroState(macro.Id) switch
         {
-            MacroState.Paused => (() => _scheduler.ResumeMacro(macro.Id), "Resume"),
-            _ => (() => _scheduler.StartMacro(macro), "Start")
+            MacroState.Paused => (() => _scheduler.ResumeMacro(macro.Id), Loc.Get("Common.Resume")),
+            _ => (() => _scheduler.StartMacro(macro), Loc.Get("Common.Start"))
         };
 
     private void DrawRightAlignedControls(IMacro macro)
@@ -116,24 +116,24 @@ public partial class MacroEditor
 
         using (ImRaii.PushColor(ImGuiCol.Text, statusColor))
         {
-            if (ImGuiUtils.IconButton(statusIcon, macroCount > 0 ? $"{macroCount} running" : "No macros running"))
+            if (ImGuiUtils.IconButton(statusIcon, macroCount > 0 ? Loc.Format("Editor.RunningCount", macroCount) : Loc.Get("Editor.NoneRunning")))
                 _ws.Toggle<StatusWindow>();
         }
 
         ImGui.SameLine();
-        if (ImGuiUtils.IconButton(_editor.IsShowingLineNumbers ? FontAwesomeHelper.IconSortAsc : FontAwesomeHelper.IconSortDesc, "Toggle Line Numbers"))
+        if (ImGuiUtils.IconButton(_editor.IsShowingLineNumbers ? FontAwesomeHelper.IconSortAsc : FontAwesomeHelper.IconSortDesc, Loc.Get("Editor.ToggleLineNumbers")))
             _editor.IsShowingLineNumbers ^= true;
 
         ImGui.SameLine();
-        if (ImGuiUtils.IconButton(_editor.IsShowingWhitespace ? FontAwesomeHelper.IconInvisible : FontAwesomeHelper.IconVisible, "Show Whitespace"))
+        if (ImGuiUtils.IconButton(_editor.IsShowingWhitespace ? FontAwesomeHelper.IconInvisible : FontAwesomeHelper.IconVisible, Loc.Get("Editor.ShowWhitespace")))
             _editor.IsShowingWhitespace ^= true;
 
         ImGui.SameLine();
-        if (ImGuiUtils.IconButton(_editor.IsHighlightingSyntax ? FontAwesomeHelper.IconCheck : FontAwesomeHelper.IconXmark, "Syntax Highlighting"))
+        if (ImGuiUtils.IconButton(_editor.IsHighlightingSyntax ? FontAwesomeHelper.IconCheck : FontAwesomeHelper.IconXmark, Loc.Get("Editor.SyntaxHighlighting")))
             _editor.IsHighlightingSyntax ^= true;
 
         ImGui.SameLine();
-        if (ImGuiUtils.IconButton(FontAwesomeIcon.Cog, "Settings"))
+        if (ImGuiUtils.IconButton(FontAwesomeIcon.Cog, Loc.Get("Main.Tab.Settings")))
             _showSettings ^= true;
 
         if (macro is ConfigMacro { IsGitMacro: true } configMacro)
@@ -141,9 +141,9 @@ public partial class MacroEditor
             ImGui.SameLine();
             var (updateIndicator, updateColor, tooltip) = _updateState switch
             {
-                UpdateState.None => ("0", ImGuiColors.DalamudGrey, "No updates available"),
-                UpdateState.Available => ("1", ImGuiColors.DPSRed, "Update available (click to update)"),
-                _ => ("?", ImGuiColors.DalamudGrey, "Check for updates")
+                UpdateState.None => ("0", ImGuiColors.DalamudGrey, Loc.Get("Editor.NoUpdates")),
+                UpdateState.Available => ("1", ImGuiColors.DPSRed, Loc.Get("Editor.UpdateAvailable")),
+                _ => ("?", ImGuiColors.DalamudGrey, Loc.Get("Editor.CheckUpdates"))
             };
 
             if (ImGuiUtils.IconButtonWithNotification(FontAwesomeIcon.Bell, updateIndicator, updateColor, tooltip))
@@ -188,9 +188,9 @@ public partial class MacroEditor
         using var _ = ImRaii.PushColor(ImGuiCol.FrameBg, new Vector4(0.1f, 0.1f, 0.1f, 1.0f));
 
         var chars = macro.Content.Length;
-        ImGuiEx.Text(ImGuiColors.DalamudGrey, $"Name: {macro.Name}  |  Lines: {_editor.Lines}  |  Chars: {chars}  |  Column: {_editor.Column}  |  Readonly: {_editor.ReadOnly}  |");
+        ImGuiEx.Text(ImGuiColors.DalamudGrey, Loc.Format("Editor.StatusBar", macro.Name, _editor.Lines, chars, _editor.Column, _editor.ReadOnly ? Loc.Get("Common.Yes") : Loc.Get("Common.No")));
         ImGui.SameLine(0, 5);
-        ImGuiEx.Text(ImGuiColors.DalamudGrey, $"Type: {macro.Type}");
+        ImGuiEx.Text(ImGuiColors.DalamudGrey, Loc.Format("Editor.Type", macro.Type));
         if (ImGui.IsItemClicked())
             _wantOpenSelector = true;
 

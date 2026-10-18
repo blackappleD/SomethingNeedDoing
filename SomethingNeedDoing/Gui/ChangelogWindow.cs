@@ -125,13 +125,15 @@ public class ChangelogWindow : Window
         base.OnOpen();
     }
 
+    public override void PreDraw() => WindowName = $"{P.Name} - {Loc.Get("Changelog.Title")}###{P.Name}_{nameof(ChangelogWindow)}";
+
     public override void Draw()
     {
         foreach (var version in _sortedVersions)
         {
             var flags = P.Version == version ? ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.CollapsingHeader : ImGuiTreeNodeFlags.CollapsingHeader;
             using (ImRaii.PushColor(ImGuiCol.Text, EzColor.Green.Vector4, flags.HasFlag(ImGuiTreeNodeFlags.DefaultOpen)))
-                if (!ImGui.CollapsingHeader($"Version {version}", flags)) continue;
+                if (!ImGui.CollapsingHeader($"{Loc.Format("Changelog.Version", version)}###v{version}", flags)) continue;
             var classGroups = _versionedGroups[version];
             var classGroupDict = classGroups.ToDictionary(cg => cg.ClassName, cg => cg);
             var usedAsReturnType = classGroups.SelectMany(cg => cg.Members.Values)

@@ -13,7 +13,7 @@ public static class CreateFolderModal
     public static void Open()
     {
         IsOpen = true;
-        _newFolderName = "New Folder";
+        _newFolderName = Loc.Get("Modal.CreateFolder.DefaultName");
     }
 
     public static void Close()
@@ -37,12 +37,12 @@ public static class CreateFolderModal
 
         ImGuiEx.Icon(FontAwesomeHelper.IconFolder);
         ImGui.SameLine();
-        ImGui.Text("Create New Folder");
+        ImGui.Text(Loc.Get("Modal.CreateFolder.Title"));
         ImGui.Separator();
         ImGui.Spacing();
 
         ImGui.AlignTextToFramePadding();
-        ImGui.Text("Name:");
+        ImGui.Text(Loc.Get("Common.Name"));
 
         ImGui.SameLine();
         ImGuiUtils.SetFocusIfAppearing();
@@ -52,7 +52,7 @@ public static class CreateFolderModal
         ImGui.Spacing();
         ImGui.Spacing();
 
-        ImGuiUtils.CenteredButtons(("Create", () =>
+        ImGuiUtils.CenteredButtons((Loc.Get("Common.Create"), () =>
         {
             var folderExists = false;
             foreach (var macro in C.Macros)
@@ -80,6 +80,6 @@ public static class CreateFolderModal
                 Close();
             }
         }
-        ), ("Cancel", Close));
+        ), (Loc.Get("Common.Cancel"), Close));
     }
 }

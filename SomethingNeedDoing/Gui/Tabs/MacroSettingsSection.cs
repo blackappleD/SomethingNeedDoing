@@ -52,13 +52,13 @@ public partial class MacroSettingsSection
             DrawDependencies(selectedMacro);
         }
         else
-            ImGui.TextColored(ImGuiColors.DalamudGrey, "Select a macro to view and edit its settings");
+            ImGui.TextColored(ImGuiColors.DalamudGrey, Loc.Get("MacroSettings.SelectMacro"));
     }
 
     private void DrawMacroConfig(ConfigMacro selectedMacro)
     {
         if (selectedMacro.Metadata.Configs.Count == 0) return;
-        ImGuiUtils.Section("Macro Configuration", () =>
+        ImGuiUtils.Section(Loc.Get("MacroSettings.Configuration"), () =>
         {
             var sectionOrder = new List<string>();
             var grouped = new Dictionary<string, List<KeyValuePair<string, MacroConfigItem>>>();
@@ -104,13 +104,13 @@ public partial class MacroSettingsSection
         ImGui.SameLine(ImGui.GetContentRegionAvail().X - 80);
         using (ImRaii.Disabled(configValue.IsValueDefault()))
         {
-            if (ImGui.Button("Reset", new Vector2(70, 0)))
+            if (ImGui.Button($"{Loc.Get("Common.Reset")}###Reset", new Vector2(70, 0)))
             {
                 configValue.Value = configValue.DefaultValue;
                 C.Save();
             }
         }
-        ImGuiEx.Tooltip($"Reset to default value: {configValue.DefaultValue}");
+        ImGuiEx.Tooltip(Loc.Format("MacroSettings.ResetTooltip", configValue.DefaultValue));
         ImGui.Spacing();
 
         var valueChanged = false;
@@ -133,7 +133,7 @@ public partial class MacroSettingsSection
                 if (configValue.MinValue != null || configValue.MaxValue != null)
                 {
                     ImGui.SameLine();
-                    ImGui.TextColored(ImGuiColors.DalamudGrey, $"Range: {intMin} - {intMax}");
+                    ImGui.TextColored(ImGuiColors.DalamudGrey, Loc.Format("MacroSettings.Range", intMin, intMax));
                 }
                 break;
 
@@ -154,7 +154,7 @@ public partial class MacroSettingsSection
                 if (configValue.MinValue != null || configValue.MaxValue != null)
                 {
                     ImGui.SameLine();
-                    ImGui.TextColored(ImGuiColors.DalamudGrey, $"Range: {floatMin:F2} - {floatMax:F2}");
+                    ImGui.TextColored(ImGuiColors.DalamudGrey, Loc.Format("MacroSettings.Range", floatMin.ToString("F2"), floatMax.ToString("F2")));
                 }
                 break;
 
@@ -187,7 +187,7 @@ public partial class MacroSettingsSection
                         }
                     }
                     else
-                        ImGui.TextColored(ImGuiColors.DalamudRed, "No choices defined");
+                        ImGui.TextColored(ImGuiColors.DalamudRed, Loc.Get("MacroSettings.NoChoices"));
                 }
                 else
                 {
@@ -213,7 +213,7 @@ public partial class MacroSettingsSection
                         }
 
                         ImGui.SameLine();
-                        if (ImGui.Button("Remove"))
+                        if (ImGui.Button($"{Loc.Get("Common.Remove")}###Remove"))
                         {
                             list.RemoveAt(i);
                             valueChanged = true;
@@ -244,7 +244,7 @@ public partial class MacroSettingsSection
                         }
                     }
                     else
-                        ImGui.TextColored(ImGuiColors.DalamudRed, "No choices defined");
+                        ImGui.TextColored(ImGuiColors.DalamudRed, Loc.Get("MacroSettings.NoChoices"));
                 }
                 else
                 {
@@ -260,12 +260,12 @@ public partial class MacroSettingsSection
                             var regex = new System.Text.RegularExpressions.Regex(configValue.ValidationPattern);
                             isValid = regex.IsMatch(stringValue);
                             if (!isValid)
-                                validationMessage = configValue.ValidationMessage ?? "Value does not match pattern";
+                                validationMessage = configValue.ValidationMessage ?? Loc.Get("MacroSettings.PatternMismatch");
                         }
                         catch (Exception ex)
                         {
                             isValid = false;
-                            validationMessage = $"Invalid validation pattern: {ex.Message}";
+                            validationMessage = Loc.Format("MacroSettings.InvalidPattern", ex.Message);
                         }
                     }
 
@@ -286,7 +286,7 @@ public partial class MacroSettingsSection
                         if (!isValid && !string.IsNullOrEmpty(validationMessage))
                             ImGuiEx.Tooltip(validationMessage);
                         else if (isValid)
-                            ImGuiEx.Tooltip("Value matches validation pattern");
+                            ImGuiEx.Tooltip(Loc.Get("MacroSettings.PatternMatch"));
                     }
                 }
                 break;
@@ -312,10 +312,10 @@ public partial class MacroSettingsSection
 
     private void DrawGeneralInfo(ConfigMacro selectedMacro)
     {
-        ImGuiUtils.Section("General Information", () =>
+        ImGuiUtils.Section(Loc.Get("MacroSettings.GeneralInfo"), () =>
         {
             ImGui.AlignTextToFramePadding();
-            ImGui.Text("Author:");
+            ImGui.Text(Loc.Get("MacroSettings.Author"));
             ImGui.SameLine(100);
 
             var author = selectedMacro.Metadata.Author ?? string.Empty;
@@ -327,7 +327,7 @@ public partial class MacroSettingsSection
             }
 
             ImGui.AlignTextToFramePadding();
-            ImGui.Text("Version:");
+            ImGui.Text(Loc.Get("MacroSettings.Version"));
             ImGui.SameLine(100);
 
             var version = selectedMacro.Metadata.Version ?? string.Empty;
@@ -339,7 +339,7 @@ public partial class MacroSettingsSection
             }
 
             ImGui.AlignTextToFramePadding();
-            ImGui.Text("Description:");
+            ImGui.Text(Loc.Get("MacroSettings.Description"));
 
             var description = selectedMacro.Metadata.Description ?? string.Empty;
             ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X);
@@ -349,32 +349,32 @@ public partial class MacroSettingsSection
                 C.Save();
             }
 
-            if (ImGui.Button("Write Metadata to Content"))
+            if (ImGui.Button($"{Loc.Get("MacroSettings.WriteMetadata")}###WriteMetadata"))
             {
                 if (_metadataParser.WriteMetadata(selectedMacro, OnContentUpdated))
                     FrameworkLogger.Debug($"Wrote metadata to macro {selectedMacro.Name}");
                 else
                     FrameworkLogger.Error($"Failed to write metadata to macro {selectedMacro.Name}");
             }
-            ImGuiEx.Tooltip("Writes the current metadata (author, version, description, dependencies, triggers) to the macro content. If metadata already exists, it will be updated.");
+            ImGuiEx.Tooltip(Loc.Get("MacroSettings.WriteMetadata.Tooltip"));
 
             ImGui.SameLine();
 
-            if (ImGui.Button("Read Metadata from Content"))
+            if (ImGui.Button($"{Loc.Get("MacroSettings.ReadMetadata")}###ReadMetadata"))
             {
                 selectedMacro.Metadata = _metadataParser.ParseMetadata(selectedMacro.Content);
                 C.Save();
             }
-            ImGuiEx.Tooltip("Reads metadata (author, version, description, dependencies, triggers) from the macro content and updates the settings.");
+            ImGuiEx.Tooltip(Loc.Get("MacroSettings.ReadMetadata.Tooltip"));
         });
     }
 
     private void DrawGitInfo(ConfigMacro selectedMacro)
     {
-        ImGuiUtils.Section("Git Information", () =>
+        ImGuiUtils.Section(Loc.Get("MacroSettings.GitInfo"), () =>
         {
             ImGui.AlignTextToFramePadding();
-            ImGui.Text("GitHub URL:");
+            ImGui.Text(Loc.Get("Common.GitHubUrl"));
             ImGui.SameLine(100);
 
             var repoUrl = selectedMacro.GitInfo.RepositoryUrl;
@@ -384,20 +384,20 @@ public partial class MacroSettingsSection
                 selectedMacro.GitInfo.RepositoryUrl = repoUrl;
                 C.Save();
             }
-            ImGuiEx.Tooltip("Enter a GitHub URL (e.g., https://github.com/owner/repo/blob/branch/path)");
+            ImGuiEx.Tooltip(Loc.Get("Common.GitHubUrl.Tooltip"));
 
             if (selectedMacro.IsGitMacro)
             {
                 ImGui.AlignTextToFramePadding();
                 var autoUpdate = selectedMacro.GitInfo.AutoUpdate;
-                if (ImGui.Checkbox("Auto Update", ref autoUpdate))
+                if (ImGui.Checkbox($"{Loc.Get("MacroSettings.AutoUpdate")}###AutoUpdate", ref autoUpdate))
                 {
                     selectedMacro.GitInfo.AutoUpdate = autoUpdate;
                     C.Save();
                 }
 
                 var group = new ImGuiEx.EzButtonGroup();
-                group.AddIconWithText(FontAwesomeIcon.Download, "Import", () =>
+                group.AddIconWithText(FontAwesomeIcon.Download, Loc.Get("Common.Import"), () =>
                 {
                     if (!string.IsNullOrWhiteSpace(repoUrl))
                     {
@@ -414,9 +414,9 @@ public partial class MacroSettingsSection
                         });
                     }
                 });
-                group.AddIconWithText(FontAwesomeIcon.History, "Version History", () => _versionHistoryModal.Open(selectedMacro));
-                group.AddIconWithText(FontAwesomeIcon.Sync, "Reset Git Info",
-                    () => { selectedMacro.GitInfo = new GitInfo(); C.Save(); }, "Wipes all git information and reverts this macro back to a standard local macro.",
+                group.AddIconWithText(FontAwesomeIcon.History, Loc.Get("MacroSettings.VersionHistory"), () => _versionHistoryModal.Open(selectedMacro));
+                group.AddIconWithText(FontAwesomeIcon.Sync, Loc.Get("MacroSettings.ResetGitInfo"),
+                    () => { selectedMacro.GitInfo = new GitInfo(); C.Save(); }, Loc.Get("MacroSettings.ResetGitInfo.Tooltip"),
                     new() { ButtonColor = EzColor.Red });
                 group.Draw();
             }
@@ -425,10 +425,10 @@ public partial class MacroSettingsSection
 
     private void DrawCraftLoop(ConfigMacro selectedMacro)
     {
-        ImGuiUtils.Section("CraftLoop Settings", () =>
+        ImGuiUtils.Section(Loc.Get("MacroSettings.CraftLoop"), () =>
         {
             var craftingLoop = selectedMacro.Metadata.CraftingLoop;
-            if (ImGui.Checkbox("Enable Crafting Loop", ref craftingLoop))
+            if (ImGui.Checkbox($"{Loc.Get("MacroSettings.EnableCraftLoop")}###EnableCraftLoop", ref craftingLoop))
             {
                 selectedMacro.Metadata.CraftingLoop = craftingLoop;
                 C.Save();
@@ -440,7 +440,7 @@ public partial class MacroSettingsSection
 
                 var loopCount = selectedMacro.Metadata.CraftLoopCount;
                 ImGui.SetNextItemWidth(100);
-                if (ImGui.InputInt("Loop Count", ref loopCount))
+                if (ImGui.InputInt($"{Loc.Get("MacroSettings.LoopCount")}###LoopCount", ref loopCount))
                 {
                     if (loopCount < -1)
                         loopCount = -1;
@@ -450,7 +450,7 @@ public partial class MacroSettingsSection
                 }
 
                 ImGui.SameLine();
-                ImGui.TextColored(ImGuiColors.DalamudGrey, "(-1 = infinite)");
+                ImGui.TextColored(ImGuiColors.DalamudGrey, Loc.Get("MacroSettings.InfiniteHint"));
 
                 ImGui.Unindent(20);
             }
@@ -459,7 +459,7 @@ public partial class MacroSettingsSection
 
     private void DrawTriggers(ConfigMacro selectedMacro)
     {
-        ImGuiUtils.Section("Trigger Events", () =>
+        ImGuiUtils.Section(Loc.Get("MacroSettings.TriggerEvents"), () =>
         {
             var events = new List<TriggerEvent>(selectedMacro.Metadata.TriggerEvents);
             if (ImGuiUtils.EnumCheckboxes(ref events, [TriggerEvent.None]))
@@ -472,7 +472,7 @@ public partial class MacroSettingsSection
                 ImGui.Separator();
                 ImGui.Spacing();
 
-                ImGui.Text("Addon Event Configuration");
+                ImGui.Text(Loc.Get("MacroSettings.AddonEventConfig"));
                 ImGui.Spacing();
 
                 var addonConfig = selectedMacro.Metadata.AddonEventConfig ?? new AddonEventConfig();
@@ -480,7 +480,7 @@ public partial class MacroSettingsSection
                 var eventType = addonConfig.EventType;
 
                 ImGui.AlignTextToFramePadding();
-                ImGui.Text("Addon Name:");
+                ImGui.Text(Loc.Get("MacroSettings.AddonName"));
                 ImGui.SameLine(100);
 
                 ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X);
@@ -492,7 +492,7 @@ public partial class MacroSettingsSection
                 }
 
                 ImGui.AlignTextToFramePadding();
-                ImGui.Text("Event Type:");
+                ImGui.Text(Loc.Get("MacroSettings.EventType"));
                 ImGui.SameLine(100);
 
                 ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X);
@@ -503,7 +503,7 @@ public partial class MacroSettingsSection
                     C.Save();
                 }
 
-                if (ImGui.Button("Clear Addon Event Config"))
+                if (ImGui.Button($"{Loc.Get("MacroSettings.ClearAddonEventConfig")}###ClearAddonEventConfig"))
                 {
                     selectedMacro.Metadata.AddonEventConfig = null;
                     C.Save();
@@ -514,7 +514,7 @@ public partial class MacroSettingsSection
 
     private void DrawPluginDependencies(ConfigMacro selectedMacro)
     {
-        ImGuiUtils.Section("Plugin Dependencies", () =>
+        ImGuiUtils.Section(Loc.Get("MacroSettings.PluginDependencies"), () =>
         {
             var installedPlugins = Svc.PluginInterface.InstalledPlugins
                 .Where(p => p.IsLoaded)
@@ -537,7 +537,7 @@ public partial class MacroSettingsSection
             ImGui.Spacing();
 
             if (selectedMacro.Metadata.PluginDependecies.Length == 0)
-                ImGui.TextColored(ImGuiColors.DalamudGrey, "No plugin dependencies configured");
+                ImGui.TextColored(ImGuiColors.DalamudGrey, Loc.Get("MacroSettings.NoPluginDependencies"));
             else
             {
                 foreach (var plugin in selectedMacro.Metadata.PluginDependecies)
@@ -548,7 +548,7 @@ public partial class MacroSettingsSection
                     ImGui.Text(plugin);
                     ImGui.SameLine(ImGui.GetContentRegionAvail().X - 30);
 
-                    if (ImGuiUtils.IconButton(FontAwesomeIcon.Trash, "Remove dependency"))
+                    if (ImGuiUtils.IconButton(FontAwesomeIcon.Trash, Loc.Get("MacroSettings.RemoveDependency")))
                     {
                         var newDeps = selectedMacro.Metadata.PluginDependecies.ToList();
                         newDeps.Remove(plugin);
@@ -562,7 +562,7 @@ public partial class MacroSettingsSection
 
     private void DrawPluginConflicts(ConfigMacro selectedMacro)
     {
-        ImGuiUtils.Section("Plugin Conflicts", () =>
+        ImGuiUtils.Section(Loc.Get("MacroSettings.PluginConflicts"), () =>
         {
             ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X);
             if (ImGuiEx.Combo("##DisableablePluginSelector", ref _pluginToDisable, _disableablePluginNames))
@@ -579,7 +579,7 @@ public partial class MacroSettingsSection
             ImGui.Spacing();
 
             if (selectedMacro.Metadata.PluginsToDisable.Length == 0)
-                ImGui.TextColored(ImGuiColors.DalamudGrey, "No plugins configured to disable");
+                ImGui.TextColored(ImGuiColors.DalamudGrey, Loc.Get("MacroSettings.NoPluginConflicts"));
             else
             {
                 foreach (var plugin in selectedMacro.Metadata.PluginsToDisable)
@@ -590,7 +590,7 @@ public partial class MacroSettingsSection
                     ImGui.Text(plugin);
                     ImGui.SameLine(ImGui.GetContentRegionAvail().X - 30);
 
-                    if (ImGuiUtils.IconButton(FontAwesomeIcon.Trash, "Remove plugin"))
+                    if (ImGuiUtils.IconButton(FontAwesomeIcon.Trash, Loc.Get("MacroSettings.RemovePlugin")))
                     {
                         var newDeps = selectedMacro.Metadata.PluginsToDisable.ToList();
                         newDeps.Remove(plugin);
@@ -604,10 +604,10 @@ public partial class MacroSettingsSection
 
     private void DrawDependencies(ConfigMacro selectedMacro)
     {
-        ImGuiUtils.Section("Macro Dependencies", () =>
+        ImGuiUtils.Section(Loc.Get("MacroSettings.MacroDependencies"), () =>
         {
             if (selectedMacro.Metadata.Dependencies.Count == 0)
-                ImGui.TextColored(ImGuiColors.DalamudGrey, "No macro dependencies configured");
+                ImGui.TextColored(ImGuiColors.DalamudGrey, Loc.Get("MacroSettings.NoMacroDependencies"));
             else
             {
                 for (var i = 0; i < selectedMacro.Metadata.Dependencies.Count; i++)
@@ -626,7 +626,7 @@ public partial class MacroSettingsSection
                     ImGuiEx.IconWithText(icon, displayName);
 
                     ImGui.SameLine(ImGui.GetContentRegionAvail().X - 30);
-                    if (ImGuiUtils.IconButton(FontAwesomeIcon.Trash, "Remove dependency"))
+                    if (ImGuiUtils.IconButton(FontAwesomeIcon.Trash, Loc.Get("MacroSettings.RemoveDependency")))
                     {
                         selectedMacro.Metadata.Dependencies.RemoveAt(i--);
                         C.Save();
@@ -638,7 +638,7 @@ public partial class MacroSettingsSection
             ImGui.Separator();
             ImGui.Spacing();
 
-            ImGui.Text("Add New Dependency");
+            ImGui.Text(Loc.Get("MacroSettings.AddNewDependency"));
             ImGui.Spacing();
 
             ImGuiEx.EnumRadio(ref _dependencyType, true);
@@ -647,7 +647,7 @@ public partial class MacroSettingsSection
 
             if (_dependencyType == DependencyType.Local)
             {
-                ImGui.Text("Local Dependency Type:");
+                ImGui.Text(Loc.Get("MacroSettings.LocalDependencyType"));
                 ImGui.Spacing();
 
                 ImGuiEx.EnumRadio(ref _localDependencyType, true);
@@ -670,9 +670,9 @@ public partial class MacroSettingsSection
                 {
                     ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X);
                     ImGui.InputText("##LocalFilePath", ref _localFilePath, 1000);
-                    ImGuiEx.Tooltip("Enter the full path to a local file");
+                    ImGuiEx.Tooltip(Loc.Get("MacroSettings.LocalFilePath.Tooltip"));
 
-                    if (ImGui.Button("Add File Dependency"))
+                    if (ImGui.Button($"{Loc.Get("MacroSettings.AddFileDependency")}###AddFileDependency"))
                     {
                         if (!string.IsNullOrWhiteSpace(_localFilePath))
                         {
@@ -687,9 +687,9 @@ public partial class MacroSettingsSection
             {
                 ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X);
                 ImGui.InputText("##GitUrl", ref _gitUrl, 1000);
-                ImGuiEx.Tooltip("Enter a GitHub URL (e.g., https://github.com/owner/repo or https://github.com/owner/repo/blob/branch/path)");
+                ImGuiEx.Tooltip(Loc.Get("MacroSettings.GitDependency.Tooltip"));
 
-                if (ImGui.Button("Add Dependency"))
+                if (ImGui.Button($"{Loc.Get("MacroSettings.AddDependency")}###AddDependency"))
                 {
                     if (!string.IsNullOrWhiteSpace(_gitUrl))
                     {

@@ -12,11 +12,11 @@ public partial class HelpTab
     public void Draw()
     {
         ImGuiEx.EzTabBar("Tabs",
-            ("General", HelpGeneralTab.DrawTab, null, false),
-            ("Commands", _commandsTab.DrawTab, null, false),
+            ($"{Loc.Get("Help.Tab.General")}###General", HelpGeneralTab.DrawTab, null, false),
+            ($"{Loc.Get("Help.Tab.Commands")}###Commands", _commandsTab.DrawTab, null, false),
             ("Lua", _luaTab.DrawTab, null, false),
-            ("Cli", _cliTab.DrawTab, null, false),
-            ("Clicks", HelpClicksTab.DrawTab, null, false),
-            ("Keys & Sends", HelpKeysTab.DrawTab, null, false));
+            ($"{Loc.Get("Help.Tab.Cli")}###Cli", _cliTab.DrawTab, null, false),
+            ($"{Loc.Get("Help.Tab.Clicks")}###Clicks", HelpClicksTab.DrawTab, null, false),
+            ($"{Loc.Get("Help.Tab.Keys")}###Keys", HelpKeysTab.DrawTab, null, false));
     }
 }

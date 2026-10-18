@@ -7,6 +7,19 @@ Repo:
 https://puni.sh/api/repository/croizat
 ```
 
+### 国服维护版（blackappleD）
+
+本 fork 增加了界面多语言支持，目前提供英文和简体中文。默认跟随 Dalamud 界面语言，也可以在
+`设置 -> 常规设置 -> 界面语言` 中手动切换，切换后立即生效。翻译文件位于
+`SomethingNeedDoing/Localization/`（`en.json` 为基准，缺失的键回退到英文）。
+
+Lua API 文档、`/click` 列表、按键名和宏内容等由代码或脚本提供的标识符保持原样。
+
+自定义插件仓库：
+```
+https://raw.githubusercontent.com/blackappleD/DalamudPlugins/main/repo.json
+```
+
 
 ### Community Script Repositories
 

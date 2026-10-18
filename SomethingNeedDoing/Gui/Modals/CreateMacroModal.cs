@@ -19,7 +19,7 @@ public class CreateMacroModal(GitMacroManager gitManager)
     public void Open()
     {
         IsOpen = true;
-        _newMacroName = "New Macro";
+        _newMacroName = Loc.Get("Modal.CreateMacro.DefaultName");
         _newMacroType = MacroType.Native;
         _githubUrl = "";
         _importError = "";
@@ -46,11 +46,11 @@ public class CreateMacroModal(GitMacroManager gitManager)
 
         ImGuiEx.Icon(FontAwesomeHelper.IconNew);
         ImGui.SameLine();
-        ImGui.Text("Create New Macro");
+        ImGui.Text(Loc.Get("Modal.CreateMacro.Title"));
         ImGui.Separator();
 
         ImGui.AlignTextToFramePadding();
-        ImGui.Text("Name:");
+        ImGui.Text(Loc.Get("Common.Name"));
 
         ImGui.SameLine();
         ImGuiUtils.SetFocusIfAppearing();
@@ -60,19 +60,19 @@ public class CreateMacroModal(GitMacroManager gitManager)
         ImGui.Spacing();
 
         ImGui.AlignTextToFramePadding();
-        ImGui.Text("Type:");
+        ImGui.Text(Loc.Get("Common.Type"));
         ImGui.SameLine();
 
         _newMacroType = ImGuiUtils.EnumRadioButtons(_newMacroType);
 
         ImGui.Spacing();
 
-        ImGuiUtils.Section("Optional: Import from Github", () =>
+        ImGuiUtils.Section(Loc.Get("Modal.CreateMacro.ImportSection"), () =>
         {
             ImGui.AlignTextToFramePadding();
-            ImGui.Text("GitHub URL:");
+            ImGui.Text(Loc.Get("Common.GitHubUrl"));
             ImGui.SameLine();
-            ImGuiEx.Tooltip("Enter a GitHub URL (e.g., https://github.com/owner/repo/blob/branch/path)");
+            ImGuiEx.Tooltip(Loc.Get("Common.GitHubUrl.Tooltip"));
 
             ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X);
             ImGui.InputText("##GitHubUrl", ref _githubUrl, 500);
@@ -88,10 +88,10 @@ public class CreateMacroModal(GitMacroManager gitManager)
         ImGui.Spacing();
 
         if (_isImporting)
-            ImGuiUtils.CenteredButtons(("Importing...", () => { }));
+            ImGuiUtils.CenteredButtons((Loc.Get("Modal.CreateMacro.Importing"), () => { }));
         else
         {
-            ImGuiUtils.CenteredButtons(("Create", async () =>
+            ImGuiUtils.CenteredButtons((Loc.Get("Common.Create"), async () =>
             {
                 if (!string.IsNullOrWhiteSpace(_githubUrl))
                     await ImportFromGitHub();
@@ -111,7 +111,7 @@ public class CreateMacroModal(GitMacroManager gitManager)
                     Close();
                 }
             }
-            ), ("Cancel", Close));
+            ), (Loc.Get("Common.Cancel"), Close));
         }
     }
 
@@ -126,7 +126,7 @@ public class CreateMacroModal(GitMacroManager gitManager)
             var macro = await gitManager.AddGitMacroFromUrl(_githubUrl);
 
             // Update the name if provided
-            if (!string.IsNullOrWhiteSpace(_newMacroName) && _newMacroName != "New Macro")
+            if (!string.IsNullOrWhiteSpace(_newMacroName) && _newMacroName != Loc.Get("Modal.CreateMacro.DefaultName"))
                 macro.Name = C.GetUniqueMacroName(_newMacroName);
 
             macro.Type = _newMacroType;
@@ -135,7 +135,7 @@ public class CreateMacroModal(GitMacroManager gitManager)
         }
         catch (Exception ex)
         {
-            _importError = $"Failed to import from GitHub: {ex.Message}";
+            _importError = Loc.Format("Modal.CreateMacro.ImportFailed", ex.Message);
             FrameworkLogger.Error(ex, "Failed to import macro from GitHub");
         }
         finally

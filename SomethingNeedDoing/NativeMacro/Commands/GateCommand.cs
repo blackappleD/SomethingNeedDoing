@@ -24,11 +24,10 @@ public class GateCommand(string text, int gateCount) : MacroCommandBase(text)
         if (EchoModifier?.ShouldEcho == true || C.LoopEcho)
         {
             if (remainingCount == 0)
-                Svc.Chat.PrintMessage("No crafts remaining");
+                Svc.Chat.PrintMessage(Loc.Get("Chat.NoCraftsRemaining"));
             else
             {
-                var noun = remainingCount == 1 ? "craft" : "crafts";
-                Svc.Chat.PrintMessage($"{remainingCount} {noun} remaining");
+                Svc.Chat.PrintMessage(Loc.Format(remainingCount == 1 ? "Chat.CraftRemaining" : "Chat.CraftsRemaining", remainingCount));
             }
         }
 

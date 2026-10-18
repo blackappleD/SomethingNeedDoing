@@ -44,7 +44,7 @@ public partial class VersionHistoryModal
         }
         catch (Exception ex)
         {
-            _errorMessage = $"Failed to load commit history: {ex.Message}";
+            _errorMessage = Loc.Format("Modal.History.LoadFailed", ex.Message);
         }
         finally
         {
@@ -68,11 +68,11 @@ public partial class VersionHistoryModal
         if (child)
         {
             if (_isLoading)
-                ImGui.Text("Loading commit history...");
+                ImGui.Text(Loc.Get("Modal.History.Loading"));
             else if (!string.IsNullOrEmpty(_errorMessage))
                 ImGuiEx.Text(EzColor.RedBright, _errorMessage);
             else if (_commits.Count == 0)
-                ImGui.Text("No commit history available.");
+                ImGui.Text(Loc.Get("Modal.History.Empty"));
             else
             {
                 foreach (var commit in _commits)
@@ -90,26 +90,26 @@ public partial class VersionHistoryModal
                     if (isCurrentVersion)
                     {
                         using var disabled = ImRaii.Disabled();
-                        ImGui.Button("Current Version", new Vector2(100, 0));
+                        ImGui.Button($"{Loc.Get("Modal.History.Current")}###Current", new Vector2(100, 0));
                     }
                     else if (isLatestVersion)
                     {
-                        if (ImGui.Button("Update", new Vector2(100, 0)))
+                        if (ImGui.Button($"{Loc.Get("Modal.History.Update")}###Update", new Vector2(100, 0)))
                             _ = UpdateToVersion(commit.Hash);
                     }
                     else
                     {
-                        if (ImGui.Button("Restore", new Vector2(100, 0)))
+                        if (ImGui.Button($"{Loc.Get("Modal.History.Restore")}###Restore", new Vector2(100, 0)))
                             _ = UpdateToVersion(commit.Hash);
                     }
 
-                    ImGuiEx.Text(ImGui.GetStyle().Colors[(int)ImGuiCol.TextDisabled], $"Author: {commit.Author} - {commit.Date:g}");
+                    ImGuiEx.Text(ImGui.GetStyle().Colors[(int)ImGuiCol.TextDisabled], Loc.Format("Modal.History.AuthorLine", commit.Author, commit.Date.ToString("g")));
                     ImGui.Separator();
                 }
             }
         }
 
-        ImGuiUtils.CenteredButtons(("Close", Close));
+        ImGuiUtils.CenteredButtons((Loc.Get("Common.Close"), Close));
     }
 
     private async Task UpdateToVersion(string commitHash)
@@ -126,7 +126,7 @@ public partial class VersionHistoryModal
         }
         catch (Exception ex)
         {
-            _errorMessage = $"Failed to update to version {commitHash}: {ex.Message}";
+            _errorMessage = Loc.Format("Modal.History.UpdateFailed", commitHash, ex.Message);
         }
         finally
         {

@@ -28,6 +28,7 @@ public partial class Plugin : IAsyncDalamudPlugin
         EzConfig.DefaultSerializationFactory = new ConfigFactory();
         C = EzConfig.Init<Config>();
         Config.Migrate(C);
+        Loc.Init(_pluginInterface);
 
         _host = new HostBuilder()
             .UseContentRoot(_pluginInterface.AssemblyLocation.Directory!.FullName)
@@ -51,6 +52,7 @@ public partial class Plugin : IAsyncDalamudPlugin
         finally
         {
             _host.Dispose();
+            Loc.Dispose();
             ECommonsMain.Dispose();
         }
     }

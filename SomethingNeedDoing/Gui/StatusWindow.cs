@@ -19,7 +19,7 @@ public class StatusWindow : Window
     private bool _showTriggerEvents;
     private readonly Dictionary<string, bool> _parentCollapsedStates = [];
 
-    public StatusWindow(IMacroScheduler scheduler, MacroHierarchyManager macroHierarchy, TriggerEventManager triggerEventManager) : base($"{P.Name} - Macro Status###{P.Name}_{nameof(StatusWindow)}", ImGuiWindowFlags.NoScrollbar)
+    public StatusWindow(IMacroScheduler scheduler, MacroHierarchyManager macroHierarchy, TriggerEventManager triggerEventManager) : base($"{P.Name} - {Loc.Get("Status.Title")}###{P.Name}_{nameof(StatusWindow)}", ImGuiWindowFlags.NoScrollbar)
     {
         _scheduler = scheduler;
         _macroHierarchy = macroHierarchy;
@@ -36,21 +36,23 @@ public class StatusWindow : Window
                 _minimised = !_minimised;
                 _minimiseBtn!.Icon = _minimised ? FontAwesomeIcon.WindowMaximize : FontAwesomeIcon.Minus;
             },
-            ShowTooltip = () => { using var _ = ImRaii.Tooltip(); ImGuiEx.Text(_minimised ? "Show All Macros" : "Show Running Macros Only"); },
+            ShowTooltip = () => { using var _ = ImRaii.Tooltip(); ImGuiEx.Text(Loc.Get(_minimised ? "Status.ShowAll" : "Status.ShowRunningOnly")); },
             AvailableClickthrough = true,
         };
         TitleBarButtons.Add(_minimiseBtn);
     }
 
+    public override void PreDraw() => WindowName = $"{P.Name} - {Loc.Get("Status.Title")}###{P.Name}_{nameof(StatusWindow)}";
+
     public override void Draw()
     {
-        if (ImGui.Button(_showTriggerEvents ? "Hide Trigger Events" : "Show Trigger Events"))
+        if (ImGui.Button($"{Loc.Get(_showTriggerEvents ? "Status.HideTriggerEvents" : "Status.ShowTriggerEvents")}###ToggleTriggerEvents"))
             _showTriggerEvents = !_showTriggerEvents;
 
         ImGui.SameLine();
         ImGui.TextColored(ImGuiColors.DalamudGrey, "|");
         ImGui.SameLine();
-        ImGui.TextColored(ImGuiColors.DalamudGrey, "Macro Status");
+        ImGui.TextColored(ImGuiColors.DalamudGrey, Loc.Get("Status.Title"));
 
         ImGui.Separator();
 
@@ -86,7 +88,7 @@ public class StatusWindow : Window
         var isCollapsed = _parentCollapsedStates[parent.Id];
 
         var icon = isCollapsed ? FontAwesomeIcon.ChevronRight : FontAwesomeIcon.ChevronDown;
-        if (ImGuiUtils.IconButton(icon, isCollapsed ? "Expand" : "Collapse"))
+        if (ImGuiUtils.IconButton(icon, Loc.Get(isCollapsed ? "Common.Expand" : "Common.Collapse")))
             _parentCollapsedStates[parent.Id] = !isCollapsed;
 
         ImGui.SameLine();
@@ -95,7 +97,7 @@ public class StatusWindow : Window
         if (isCollapsed && children.Count > 0)
         {
             ImGui.SameLine();
-            ImGui.TextColored(ImGuiColors.DalamudGrey, $"({children.Count} temp)");
+            ImGui.TextColored(ImGuiColors.DalamudGrey, Loc.Format("Status.TempCount", children.Count));
         }
 
         if (!isCollapsed)
@@ -119,17 +121,17 @@ public class StatusWindow : Window
     {
         if (macro.State == MacroState.Paused)
         {
-            if (ImGuiUtils.IconButton(FontAwesomeIcon.Play, "Resume"))
+            if (ImGuiUtils.IconButton(FontAwesomeIcon.Play, Loc.Get("Common.Resume")))
                 _scheduler.ResumeMacro(macro.Id);
         }
         else
         {
-            if (ImGuiUtils.IconButton(FontAwesomeIcon.Pause, "Pause"))
+            if (ImGuiUtils.IconButton(FontAwesomeIcon.Pause, Loc.Get("Common.Pause")))
                 _scheduler.PauseMacro(macro.Id);
         }
 
         ImGui.SameLine();
-        if (ImGuiUtils.IconButton(FontAwesomeIcon.Stop, "Stop"))
+        if (ImGuiUtils.IconButton(FontAwesomeIcon.Stop, Loc.Get("Common.Stop")))
             _scheduler.StopMacro(macro.Id);
     }
 
@@ -145,13 +147,13 @@ public class StatusWindow : Window
 
     private void DrawTriggerEventsSection()
     {
-        ImGuiEx.Text(ImGuiColors.DalamudOrange, "Registered Trigger Events");
+        ImGuiEx.Text(ImGuiColors.DalamudOrange, Loc.Get("Status.RegisteredTriggerEvents"));
         ImGui.Spacing();
 
         var triggerEvents = _triggerEventManager.EventHandlers;
         if (triggerEvents.Count == 0)
         {
-            ImGui.TextColored(ImGuiColors.DalamudGrey, "No trigger events registered");
+            ImGui.TextColored(ImGuiColors.DalamudGrey, Loc.Get("Status.NoTriggerEvents"));
             return;
         }
 

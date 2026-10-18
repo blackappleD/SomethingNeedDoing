@@ -8,6 +8,8 @@ permissions:
 
 jobs:
   publish:
+    # 只在上游仓库发布到 puni.sh；fork 通过 GitHub Release 发布到 blackappleD/DalamudPlugins
+    if: github.repository == 'Jaksuhn/SomethingNeedDoing'
     runs-on: ubuntu-latest
     steps:
       - name: Build and publish

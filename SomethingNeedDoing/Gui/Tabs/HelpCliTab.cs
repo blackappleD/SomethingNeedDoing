@@ -13,19 +13,19 @@ public partial class HelpCliTab
     public void DrawTab()
     {
         using var child = ImRaii.Child(nameof(HelpCliTab));
-        ImGuiUtils.Section("Command Line Interface", () => ImGui.TextWrapped("The following commands can be used in chat or your macro text."));
+        ImGuiUtils.Section(Loc.Get("Help.Cli.Title"), () => ImGui.TextWrapped(Loc.Get("Help.Cli.Description")));
 
-        ImGuiUtils.Section("Main Command", () => ImGui.TextUnformatted(_cmds.MainCommand), contentFont: UiBuilder.MonoFont);
+        ImGuiUtils.Section(Loc.Get("Help.Cli.MainCommand"), () => ImGui.TextUnformatted(_cmds.MainCommand), contentFont: UiBuilder.MonoFont);
 
-        ImGuiUtils.Section("Aliases", () => _cmds.Aliases.Each(a => ImGui.TextUnformatted(a)), contentFont: UiBuilder.MonoFont);
+        ImGuiUtils.Section(Loc.Get("Help.Cli.Aliases"), () => _cmds.Aliases.Each(a => ImGui.TextUnformatted(a)), contentFont: UiBuilder.MonoFont);
 
-        ImGuiUtils.Section("Commands", () =>
+        ImGuiUtils.Section(Loc.Get("Help.Commands"), () =>
         {
             using var table = ImRaii.Table("CommandsTable", 2, ImGuiTableFlags.BordersOuter | ImGuiTableFlags.BordersInner);
             if (!table) return;
 
-            ImGui.TableSetupColumn("Command", ImGuiTableColumnFlags.WidthFixed, 180 * ImGuiHelpers.GlobalScale);
-            ImGui.TableSetupColumn("Description", ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn(Loc.Get("Help.Cli.Command"), ImGuiTableColumnFlags.WidthFixed, 180 * ImGuiHelpers.GlobalScale);
+            ImGui.TableSetupColumn(Loc.Get("Help.Cli.DescriptionColumn"), ImGuiTableColumnFlags.WidthStretch);
             ImGui.TableHeadersRow();
 
             foreach (var (name, desc) in _cmds.GetCommandData())
