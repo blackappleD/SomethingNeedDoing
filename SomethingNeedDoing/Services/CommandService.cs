@@ -146,7 +146,7 @@ public partial class CommandService : IHostedService
     {
         var macroName = arguments.Trim('"');
         if (C.GetMacroByName(macroName) is { } macro)
-            _macroScheduler.PauseMacro(macro.Id);
+            _macroScheduler.SetPaused(macro.Id, true);
         else
             Svc.Chat.PrintErrorMsg(Loc.Format("Cmd.MacroNotFound", macroName));
     }
@@ -163,7 +163,7 @@ public partial class CommandService : IHostedService
     private void HandlePauseAllCommand()
     {
         foreach (var macro in _macroScheduler.GetMacros())
-            _macroScheduler.PauseMacro(macro.Id);
+            _macroScheduler.SetPaused(macro.Id, true);
         Svc.Chat.PrintMessage(Loc.Get("Cmd.AllPaused"));
     }
 
@@ -171,7 +171,7 @@ public partial class CommandService : IHostedService
     {
         var macroName = arguments.Trim('"');
         if (C.GetMacroByName(macroName) is { } macro)
-            _macroScheduler.ResumeMacro(macro.Id);
+            _macroScheduler.SetPaused(macro.Id, false);
         else
             Svc.Chat.PrintErrorMsg(Loc.Format("Cmd.MacroNotFound", macroName));
     }
@@ -179,7 +179,7 @@ public partial class CommandService : IHostedService
     private void HandleResumeAllCommand()
     {
         foreach (var macro in _macroScheduler.GetMacros())
-            _macroScheduler.ResumeMacro(macro.Id);
+            _macroScheduler.SetPaused(macro.Id, false);
         Svc.Chat.PrintMessage(Loc.Get("Cmd.AllResumed"));
     }
 

@@ -168,126 +168,90 @@ public partial class MacroSettingsSection
                 }
                 break;
 
-            case var t when t == typeof(List<string>):
-                if (configValue.IsChoice)
+            case var t when configValue.IsChoice && (t == typeof(List<string>) || t == typeof(string)):
+                var choices = configValue.Choices.ToArray();
+                if (choices.Length > 0)
                 {
-                    var currentChoice = configValue.Value?.ToString() ?? "";
-                    var choices = configValue.Choices.ToArray();
-
-                    if (choices.Length > 0)
+                    var currentIndex = Math.Max(0, Array.IndexOf(choices, configValue.Value?.ToString() ?? ""));
+                    ImGui.SetNextItemWidth(200);
+                    if (ImGui.Combo($"##{configName}Value", ref currentIndex, choices, choices.Length))
                     {
-                        var currentIndex = Array.IndexOf(choices, currentChoice);
-                        if (currentIndex == -1) currentIndex = 0;
-
-                        ImGui.SetNextItemWidth(200);
-                        if (ImGui.Combo($"##{configName}Value", ref currentIndex, choices, choices.Length))
-                        {
-                            configValue.Value = choices[currentIndex];
-                            valueChanged = true;
-                        }
+                        configValue.Value = choices[currentIndex];
+                        valueChanged = true;
                     }
-                    else
-                        ImGui.TextColored(ImGuiColors.DalamudRed, Loc.Get("MacroSettings.NoChoices"));
                 }
                 else
-                {
-                    var list = configValue.Value as List<string> ?? [];
+                    ImGui.TextColored(ImGuiColors.DalamudRed, Loc.Get("MacroSettings.NoChoices"));
+                break;
 
+            case var t when t == typeof(List<string>):
+                var list = configValue.Value as List<string> ?? [];
+                ImGui.SetNextItemWidth(200);
+                var entry = "";
+                if (ImGui.InputText($"##{configName}Add", ref entry, 512, ImGuiInputTextFlags.EnterReturnsTrue))
+                {
+                    list.Add(entry);
+                    valueChanged = true;
+                }
+
+                for (var i = 0; i < list.Count; i++)
+                {
+                    using var id = ImRaii.PushId($"{configName}_{i}");
                     ImGui.SetNextItemWidth(200);
-                    var entry = "";
-                    if (ImGui.InputText($"##{configName}Add", ref entry, 512, ImGuiInputTextFlags.EnterReturnsTrue))
+                    var item = list[i];
+                    if (ImGui.InputText("", ref item, 512))
                     {
-                        list.Add(entry);
+                        list[i] = item;
                         valueChanged = true;
                     }
 
-                    for (var i = 0; i < list.Count; i++)
+                    ImGui.SameLine();
+                    if (ImGui.Button($"{Loc.Get("Common.Remove")}###Remove"))
                     {
-                        using var id = ImRaii.PushId($"{configName}_{i}");
-                        ImGui.SetNextItemWidth(200);
-                        var item = list[i];
-                        if (ImGui.InputText("", ref item, 512))
-                        {
-                            list[i] = item;
-                            valueChanged = true;
-                        }
-
-                        ImGui.SameLine();
-                        if (ImGui.Button($"{Loc.Get("Common.Remove")}###Remove"))
-                        {
-                            list.RemoveAt(i);
-                            valueChanged = true;
-                            break;
-                        }
+                        list.RemoveAt(i);
+                        valueChanged = true;
+                        break;
                     }
-
-                    configValue.Value = list;
                 }
+                configValue.Value = list;
                 break;
 
             case var t when t == typeof(string):
-                if (configValue.IsChoice)
+                var stringValue = configValue.Value.ToString() ?? string.Empty;
+                ImGui.SetNextItemWidth(300);
+
+                var hasPattern = !string.IsNullOrEmpty(configValue.ValidationPattern);
+                var isValid = true;
+                var validationMessage = Loc.Get("MacroSettings.PatternMatch");
+                if (hasPattern)
                 {
-                    var currentChoice = configValue.Value?.ToString() ?? "";
-                    var choices = configValue.Choices.ToArray();
-
-                    if (choices.Length > 0)
+                    try
                     {
-                        var currentIndex = Array.IndexOf(choices, currentChoice);
-                        if (currentIndex == -1) currentIndex = 0;
-
-                        ImGui.SetNextItemWidth(200);
-                        if (ImGui.Combo($"##{configName}Value", ref currentIndex, choices, choices.Length))
-                        {
-                            configValue.Value = choices[currentIndex];
-                            valueChanged = true;
-                        }
+                        isValid = System.Text.RegularExpressions.Regex.IsMatch(stringValue, configValue.ValidationPattern!);
+                        if (!isValid)
+                            validationMessage = configValue.ValidationMessage ?? Loc.Get("MacroSettings.PatternMismatch");
                     }
-                    else
-                        ImGui.TextColored(ImGuiColors.DalamudRed, Loc.Get("MacroSettings.NoChoices"));
+                    catch (Exception ex)
+                    {
+                        isValid = false;
+                        validationMessage = Loc.Format("MacroSettings.InvalidPattern", ex.Message);
+                    }
                 }
-                else
+
+                using (ImRaii.PushColor(ImGuiCol.Text, isValid ? ImGuiColors.HealerGreen : ImGuiColors.DalamudRed, hasPattern))
                 {
-                    var stringValue = configValue.Value.ToString() ?? string.Empty;
-                    ImGui.SetNextItemWidth(300);
-
-                    var isValid = true;
-                    var validationMessage = string.Empty;
-                    if (!string.IsNullOrEmpty(configValue.ValidationPattern))
+                    if (ImGui.InputText($"##{configName}Value", ref stringValue, 1000))
                     {
-                        try
-                        {
-                            var regex = new System.Text.RegularExpressions.Regex(configValue.ValidationPattern);
-                            isValid = regex.IsMatch(stringValue);
-                            if (!isValid)
-                                validationMessage = configValue.ValidationMessage ?? Loc.Get("MacroSettings.PatternMismatch");
-                        }
-                        catch (Exception ex)
-                        {
-                            isValid = false;
-                            validationMessage = Loc.Format("MacroSettings.InvalidPattern", ex.Message);
-                        }
+                        configValue.Value = stringValue;
+                        valueChanged = true;
                     }
+                }
 
-                    using (ImRaii.PushColor(ImGuiCol.Text, isValid ? ImGuiColors.HealerGreen : ImGuiColors.DalamudRed, !string.IsNullOrEmpty(configValue.ValidationPattern)))
-                    {
-                        if (ImGui.InputText($"##{configName}Value", ref stringValue, 1000))
-                        {
-                            configValue.Value = stringValue;
-                            valueChanged = true;
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(configValue.ValidationPattern))
-                    {
-                        ImGui.SameLine();
-                        ImGuiEx.Icon(isValid ? ImGuiColors.HealerGreen : ImGuiColors.DalamudRed, isValid ? FontAwesomeIcon.Check : FontAwesomeIcon.ExclamationTriangle);
-
-                        if (!isValid && !string.IsNullOrEmpty(validationMessage))
-                            ImGuiEx.Tooltip(validationMessage);
-                        else if (isValid)
-                            ImGuiEx.Tooltip(Loc.Get("MacroSettings.PatternMatch"));
-                    }
+                if (hasPattern)
+                {
+                    ImGui.SameLine();
+                    ImGuiEx.Icon(isValid ? ImGuiColors.HealerGreen : ImGuiColors.DalamudRed, isValid ? FontAwesomeIcon.Check : FontAwesomeIcon.ExclamationTriangle);
+                    ImGuiEx.Tooltip(validationMessage);
                 }
                 break;
 
@@ -405,7 +369,7 @@ public partial class MacroSettingsSection
                         {
                             try
                             {
-                                await _gitManager.AddGitInfoToMacro(selectedMacro, repoUrl);
+                                await _gitManager.Import(repoUrl, selectedMacro);
                             }
                             catch (Exception ex)
                             {
@@ -513,93 +477,52 @@ public partial class MacroSettingsSection
     }
 
     private void DrawPluginDependencies(ConfigMacro selectedMacro)
-    {
-        ImGuiUtils.Section(Loc.Get("MacroSettings.PluginDependencies"), () =>
-        {
-            var installedPlugins = Svc.PluginInterface.InstalledPlugins
-                .Where(p => p.IsLoaded)
-                .Select(p => p.InternalName)
-                .OrderBy(p => p)
-                .ToList();
-
-            ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X);
-            if (ImGuiEx.Combo("##PluginSelector", ref _pluginDependency, installedPlugins))
-            {
-                if (!selectedMacro.Metadata.PluginDependecies.Contains(_pluginDependency))
-                {
-                    var newDeps = selectedMacro.Metadata.PluginDependecies.ToList();
-                    newDeps.Add(_pluginDependency);
-                    selectedMacro.Metadata.PluginDependecies = [.. newDeps];
-                    C.Save();
-                }
-            }
-
-            ImGui.Spacing();
-
-            if (selectedMacro.Metadata.PluginDependecies.Length == 0)
-                ImGui.TextColored(ImGuiColors.DalamudGrey, Loc.Get("MacroSettings.NoPluginDependencies"));
-            else
-            {
-                foreach (var plugin in selectedMacro.Metadata.PluginDependecies)
-                {
-                    using var __ = ImRaii.PushId(plugin);
-
-                    ImGui.AlignTextToFramePadding();
-                    ImGui.Text(plugin);
-                    ImGui.SameLine(ImGui.GetContentRegionAvail().X - 30);
-
-                    if (ImGuiUtils.IconButton(FontAwesomeIcon.Trash, Loc.Get("MacroSettings.RemoveDependency")))
-                    {
-                        var newDeps = selectedMacro.Metadata.PluginDependecies.ToList();
-                        newDeps.Remove(plugin);
-                        selectedMacro.Metadata.PluginDependecies = [.. newDeps];
-                        C.Save();
-                    }
-                }
-            }
-        });
-    }
+        => DrawStringListEditor(Loc.Get("MacroSettings.PluginDependencies"), "##PluginSelector", ref _pluginDependency,
+            Svc.PluginInterface.InstalledPlugins.Where(p => p.IsLoaded).Select(p => p.InternalName).OrderBy(p => p),
+            selectedMacro.Metadata.PluginDependecies, values => selectedMacro.Metadata.PluginDependecies = values,
+            Loc.Get("MacroSettings.NoPluginDependencies"), Loc.Get("MacroSettings.RemoveDependency"));
 
     private void DrawPluginConflicts(ConfigMacro selectedMacro)
+        => DrawStringListEditor(Loc.Get("MacroSettings.PluginConflicts"), "##DisableablePluginSelector", ref _pluginToDisable, _disableablePluginNames,
+            selectedMacro.Metadata.PluginsToDisable, values => selectedMacro.Metadata.PluginsToDisable = values,
+            Loc.Get("MacroSettings.NoPluginConflicts"), Loc.Get("MacroSettings.RemovePlugin"));
+
+    /// <summary>
+    /// Draws a section with a combo to add values from <paramref name="options"/> and a removable list of the current values.
+    /// </summary>
+    private static void DrawStringListEditor(string title, string comboId, ref string selection, IEnumerable<string> options, string[] values, Action<string[]> setValues, string emptyText, string removeTooltip)
     {
-        ImGuiUtils.Section(Loc.Get("MacroSettings.PluginConflicts"), () =>
+        var selected = selection;
+        ImGuiUtils.Section(title, () =>
         {
             ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X);
-            if (ImGuiEx.Combo("##DisableablePluginSelector", ref _pluginToDisable, _disableablePluginNames))
+            if (ImGuiEx.Combo(comboId, ref selected, options) && !values.Contains(selected))
             {
-                if (!selectedMacro.Metadata.PluginsToDisable.Contains(_pluginToDisable))
-                {
-                    var newDeps = selectedMacro.Metadata.PluginsToDisable.ToList();
-                    newDeps.Add(_pluginToDisable);
-                    selectedMacro.Metadata.PluginsToDisable = [.. newDeps];
-                    C.Save();
-                }
+                setValues([.. values, selected]);
+                C.Save();
             }
 
             ImGui.Spacing();
 
-            if (selectedMacro.Metadata.PluginsToDisable.Length == 0)
-                ImGui.TextColored(ImGuiColors.DalamudGrey, Loc.Get("MacroSettings.NoPluginConflicts"));
-            else
+            if (values.Length == 0)
+                ImGui.TextColored(ImGuiColors.DalamudGrey, emptyText);
+
+            foreach (var value in values)
             {
-                foreach (var plugin in selectedMacro.Metadata.PluginsToDisable)
+                using var id = ImRaii.PushId(value);
+
+                ImGui.AlignTextToFramePadding();
+                ImGui.Text(value);
+                ImGui.SameLine(ImGui.GetContentRegionAvail().X - 30);
+
+                if (ImGuiUtils.IconButton(FontAwesomeIcon.Trash, removeTooltip))
                 {
-                    using var __ = ImRaii.PushId(plugin);
-
-                    ImGui.AlignTextToFramePadding();
-                    ImGui.Text(plugin);
-                    ImGui.SameLine(ImGui.GetContentRegionAvail().X - 30);
-
-                    if (ImGuiUtils.IconButton(FontAwesomeIcon.Trash, Loc.Get("MacroSettings.RemovePlugin")))
-                    {
-                        var newDeps = selectedMacro.Metadata.PluginsToDisable.ToList();
-                        newDeps.Remove(plugin);
-                        selectedMacro.Metadata.PluginsToDisable = [.. newDeps];
-                        C.Save();
-                    }
+                    setValues([.. values.Where(v => v != value)]);
+                    C.Save();
                 }
             }
         });
+        selection = selected;
     }
 
     private void DrawDependencies(ConfigMacro selectedMacro)

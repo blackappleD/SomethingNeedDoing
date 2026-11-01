@@ -86,7 +86,7 @@ public partial class MacroEditor
         var group = new ImGuiEx.EzButtonGroup();
         var startBtn = GetStartOrResumeAction(macro);
         group.AddIconOnly(FontAwesomeIcon.PlayCircle, () => startBtn.action(), startBtn.tooltip);
-        group.AddIconOnly(FontAwesomeIcon.PauseCircle, () => _scheduler.PauseMacro(macro.Id), Loc.Get("Common.Pause"), new() { Condition = () => _scheduler.GetMacroState(macro.Id) is MacroState.Running });
+        group.AddIconOnly(FontAwesomeIcon.PauseCircle, () => _scheduler.SetPaused(macro.Id, true), Loc.Get("Common.Pause"), new() { Condition = () => _scheduler.GetMacroState(macro.Id) is MacroState.Running });
         group.AddIconOnly(FontAwesomeIcon.StopCircle, () => _scheduler.StopMacro(macro.Id), Loc.Get("Common.Stop"));
         group.AddIconOnly(FontAwesomeIcon.Clipboard, () => Copy(macro.Content), Loc.Get("Common.Copy"));
         group.Draw();
@@ -95,7 +95,7 @@ public partial class MacroEditor
     private (Action action, string tooltip) GetStartOrResumeAction(IMacro macro)
         => _scheduler.GetMacroState(macro.Id) switch
         {
-            MacroState.Paused => (() => _scheduler.ResumeMacro(macro.Id), Loc.Get("Common.Resume")),
+            MacroState.Paused => (() => _scheduler.SetPaused(macro.Id, false), Loc.Get("Common.Resume")),
             _ => (() => _scheduler.StartMacro(macro), Loc.Get("Common.Start"))
         };
 

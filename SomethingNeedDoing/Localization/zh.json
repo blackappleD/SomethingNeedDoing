@@ -167,6 +167,7 @@
   "Modal.CreateMacro.ImportSection": "可选：从 GitHub 导入",
   "Modal.CreateMacro.Importing": "正在导入...",
   "Modal.CreateMacro.ImportFailed": "从 GitHub 导入失败：{0}",
+  "Modal.RenameMacro.Title": "重命名宏",
   "Modal.Rename.Prompt": "输入新名称：",
   "Modal.RenameFolder.Prompt": "输入新的文件夹名称：",
   "Modal.RenameFolder.Exists": "文件夹“{0}”已存在。",

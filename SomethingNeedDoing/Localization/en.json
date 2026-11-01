@@ -167,6 +167,7 @@
   "Modal.CreateMacro.ImportSection": "Optional: Import from Github",
   "Modal.CreateMacro.Importing": "Importing...",
   "Modal.CreateMacro.ImportFailed": "Failed to import from GitHub: {0}",
+  "Modal.RenameMacro.Title": "Rename Macro",
   "Modal.Rename.Prompt": "Enter new name:",
   "Modal.RenameFolder.Prompt": "Enter new folder name:",
   "Modal.RenameFolder.Exists": "Folder name '{0}' already exists.",
