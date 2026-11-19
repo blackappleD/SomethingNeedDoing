@@ -38,6 +38,8 @@
   "Macros.EmptyFolder": "此文件夹中没有宏",
   "Macros.ErrorLoadingMacros": "加载宏出错",
   "Macros.FolderHeader": "文件夹：{0}",
+  "Macros.DragMoveMacro": "移动 {0}",
+  "Macros.DragMoveFolder": "移动文件夹 {0}",
   "Macros.RenameFolder": "重命名文件夹",
   "Macros.DeleteFolder": "删除文件夹",
   "Macros.DeleteFolder.Tooltip": "删除此文件夹，并将其中所有宏移到根目录",

@@ -304,7 +304,7 @@ public class MacrosTab(IMacroScheduler scheduler, MacroEditor macroEditor, GitMa
         if (ImGui.BeginDragDropSource())
         {
             ImGui.SetDragDropPayload(MacroDragPayload, Encoding.UTF8.GetBytes(macro.Id));
-            ImGui.Text($"Move {macro.Name}");
+            ImGui.Text(Loc.Format("Macros.DragMoveMacro", macro.Name));
             ImGui.EndDragDropSource();
         }
 
@@ -333,7 +333,7 @@ public class MacrosTab(IMacroScheduler scheduler, MacroEditor macroEditor, GitMa
             return;
 
         ImGui.SetDragDropPayload(FolderDragPayload, Encoding.UTF8.GetBytes(folderPath));
-        ImGui.Text($"Move folder {folderPath}");
+        ImGui.Text(Loc.Format("Macros.DragMoveFolder", folderPath));
         ImGui.EndDragDropSource();
     }
 

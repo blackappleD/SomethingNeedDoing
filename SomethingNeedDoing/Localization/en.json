@@ -38,6 +38,8 @@
   "Macros.EmptyFolder": "No macros in this folder",
   "Macros.ErrorLoadingMacros": "Error loading macros",
   "Macros.FolderHeader": "Folder: {0}",
+  "Macros.DragMoveMacro": "Move {0}",
+  "Macros.DragMoveFolder": "Move folder {0}",
   "Macros.RenameFolder": "Rename Folder",
   "Macros.DeleteFolder": "Delete Folder",
   "Macros.DeleteFolder.Tooltip": "Delete this folder and move all macros to root folder",
